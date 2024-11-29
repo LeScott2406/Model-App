@@ -1,17 +1,19 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 import streamlit as st
 import pandas as pd
 import numpy as np
-import io
 import requests
 
-# URL of the file on GitHub
-file_url = 'https://github.com/LeScott2406/Model-App/raw/refs/heads/main/value_added_model.xlsx'
+# Raw URL of the file (GitHub raw URL)
+file_url = 'https://raw.githubusercontent.com/LeScott2406/Model-App/main/value_added_model.xlsx'
 
-# Use requests to get the content of the file and read it as an Excel file
+# Download the file content
 response = requests.get(file_url)
-file_content = io.BytesIO(response.content)  # Load the content into a BytesIO object
 
-# Load the Excel file into a pandas DataFrame
+# Read the file into a pandas DataFrame
+file_content = io.BytesIO(response.content)
 data = pd.read_excel(file_content)
 
 # Replace NaNs with 0 in the entire DataFrame
@@ -59,23 +61,3 @@ filtered_data_sorted = filtered_data.sort_values(by=model_score_filter, ascendin
 
 # Display the filtered table with specific columns
 st.dataframe(filtered_data_sorted[['Player', 'Team', 'Position', 'Age', 'Usage', model_score_filter]])
-
-# Streamlit download button for the filtered data
-@st.cache_data
-def convert_df_to_excel(df):
-    """Convert the dataframe to Excel in memory."""
-    output = io.BytesIO()
-    # Use ExcelWriter with xlsxwriter engine
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='Sheet1')
-    # Seek to the beginning of the buffer before returning
-    output.seek(0)
-    return output
-
-# Allow users to download the filtered data as an Excel file
-st.download_button(
-    label="Download Filtered Data",
-    data=convert_df_to_excel(filtered_data_sorted),
-    file_name="filtered_data.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
