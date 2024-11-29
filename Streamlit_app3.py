@@ -5,6 +5,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import requests
+import io
 
 # Raw URL of the file (GitHub raw URL)
 file_url = 'https://raw.githubusercontent.com/LeScott2406/Model-App/main/value_added_model.xlsx'
