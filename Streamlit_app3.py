@@ -1,24 +1,28 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import streamlit as st
 import pandas as pd
 import numpy as np
 import requests
 import io
 
-# Raw URL of the file (GitHub raw URL)
-file_url = 'https://raw.githubusercontent.com/LeScott2406/Model-App/main/value_added_model.xlsx'
+# Caching the file download and loading process
+@st.cache_data
+def load_data():
+    # Raw URL of the file (GitHub raw URL)
+    file_url = 'https://raw.githubusercontent.com/LeScott2406/Model-App/main/value_added_model.xlsx'
 
-# Download the file content
-response = requests.get(file_url)
+    # Download the file content
+    response = requests.get(file_url)
 
-# Read the file into a pandas DataFrame
-file_content = io.BytesIO(response.content)
-data = pd.read_excel(file_content)
+    # Read the file into a pandas DataFrame
+    file_content = io.BytesIO(response.content)
+    data = pd.read_excel(file_content)
 
-# Replace NaNs with 0 in the entire DataFrame
-data.fillna(0, inplace=True)
+    # Replace NaNs with 0 in the entire DataFrame
+    data.fillna(0, inplace=True)
+    return data
+
+# Load the data
+data = load_data()
 
 # Streamlit app setup
 st.set_page_config(page_title="Player Model Score", layout="wide")
