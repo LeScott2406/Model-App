@@ -4,6 +4,10 @@ import numpy as np
 import requests
 import io
 
+# Streamlit app setup (must be the first Streamlit command)
+st.set_page_config(page_title="Player Model Score", layout="wide")
+st.title("Player Model Score")
+
 # Caching the file download and loading process
 @st.cache_data
 def load_data():
@@ -23,10 +27,6 @@ def load_data():
 
 # Load the data
 data = load_data()
-
-# Streamlit app setup
-st.set_page_config(page_title="Player Model Score", layout="wide")
-st.title("Player Model Score")
 
 # Filters on the sidebar
 st.sidebar.header('Filters')
