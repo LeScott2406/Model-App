@@ -1,14 +1,18 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import streamlit as st
 import pandas as pd
 import numpy as np
 import io
+import requests
 
-# Load the Excel file
-file_path = '/Users/leescott/Documents/emerging talent/value_added_model.xlsx'
-data = pd.read_excel(file_path)
+# URL of the file on GitHub
+file_url = 'https://github.com/LeScott2406/Model-App/raw/refs/heads/main/value_added_model.xlsx'
+
+# Use requests to get the content of the file and read it as an Excel file
+response = requests.get(file_url)
+file_content = io.BytesIO(response.content)  # Load the content into a BytesIO object
+
+# Load the Excel file into a pandas DataFrame
+data = pd.read_excel(file_content)
 
 # Replace NaNs with 0 in the entire DataFrame
 data.fillna(0, inplace=True)
