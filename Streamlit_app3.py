@@ -45,7 +45,15 @@ tier_filter = st.sidebar.multiselect('Select Tier', data['Tier'].unique(), defau
 
 # Cascading League filter based on selected Tier
 filtered_leagues = data[data['Tier'].isin(tier_filter)]['League'].unique()
-league_filter = st.sidebar.multiselect('Select League', filtered_leagues, default=filtered_leagues)
+league_options = ["All"] + list(filtered_leagues)  # Add "All" option
+
+league_filter = st.sidebar.multiselect('Select League', league_options, default="All")
+
+# Apply league filter: if "All" is selected, include all leagues
+if "All" in league_filter:
+    selected_leagues = filtered_leagues  # Select all leagues
+else:
+    selected_leagues = league_filter
 
 # Model score filter (dropdown)
 model_score_filter = st.sidebar.selectbox('Select Model Score', options=[col for col in data.columns if 'Score (0-100)' in col])
@@ -55,7 +63,7 @@ filtered_data = data[
     (data['Age'] >= age_filter[0]) & (data['Age'] <= age_filter[1]) &
     (data['Usage'] >= usage_filter[0]) & (data['Usage'] <= usage_filter[1]) &
     (data['Tier'].isin(tier_filter)) &
-    (data['League'].isin(league_filter))
+    (data['League'].isin(selected_leagues))
 ]
 
 if position_filter:
