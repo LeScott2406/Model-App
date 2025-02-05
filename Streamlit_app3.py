@@ -12,7 +12,7 @@ st.title("Player Model Score")
 @st.cache_data
 def load_data():
     # Raw URL of the file (GitHub raw URL)
-    file_url = 'https://raw.githubusercontent.com/LeScott2406/Model-App/main/value_added_model.xlsx'
+    file_url = 'https://github.com/LeScott2406/Model-App/raw/refs/heads/main/value_added_model%202.xlsx'
 
     # Download the file content
     response = requests.get(file_url)
