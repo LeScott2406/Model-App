@@ -28,11 +28,11 @@ def load_data():
 # Load the data
 data = load_data()
 
-# Ensure 'Contract Expires' is converted to datetime and extract the year
-if 'Contract Expires' in data.columns:
-    data['Contract Expires'] = pd.to_datetime(data['Contract Expires'], errors='coerce')
-    data.dropna(subset=['Contract Expires'], inplace=True)  # Drop invalid dates
-    data['Contract Year'] = data['Contract Expires'].dt.year  # Extract year
+# Ensure 'Contract expires' is converted to datetime and extract the year
+if 'Contract expires' in data.columns:
+    data['Contract expires'] = pd.to_datetime(data['Contract expires'], errors='coerce')
+    data.dropna(subset=['Contract expires'], inplace=True)  # Drop invalid dates
+    data['Contract Year'] = data['Contract expires'].dt.year  # Extract year
 
 # Filters on the sidebar
 st.sidebar.header('Filters')
@@ -89,5 +89,17 @@ if position_filter:
 # Sort by model score
 filtered_data_sorted = filtered_data.sort_values(by=model_score_filter, ascending=False)
 
+# Check available columns before displaying
+st.write("Columns in DataFrame:", filtered_data_sorted.columns.tolist())
+
+# Display only existing columns
+available_columns = ['Player', 'Team', 'Position', 'Age', 'Usage', 'Contract expires']
+
+if model_score_filter in filtered_data_sorted.columns:
+    available_columns.append(model_score_filter)
+
+# Keep only available columns
+available_columns = [col for col in available_columns if col in filtered_data_sorted.columns]
+
 # Display results
-st.dataframe(filtered_data_sorted[['Player', 'Team', 'Position', 'Age', 'Usage', 'Contract Expires', model_score_filter]])
+st.dataframe(filtered_data_sorted[available_columns])
