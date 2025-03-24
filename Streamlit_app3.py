@@ -4,7 +4,7 @@ import numpy as np
 import requests
 import io
 
-# Streamlit app setup (must be the first Streamlit command)
+# Streamlit app setup
 st.set_page_config(page_title="Player Model Score", layout="wide")
 st.title("Player Model Score")
 
@@ -28,6 +28,12 @@ def load_data():
 # Load the data
 data = load_data()
 
+# Ensure 'Contract Expires' is converted to datetime and extract the year
+if 'Contract Expires' in data.columns:
+    data['Contract Expires'] = pd.to_datetime(data['Contract Expires'], errors='coerce')
+    data.dropna(subset=['Contract Expires'], inplace=True)  # Drop invalid dates
+    data['Contract Year'] = data['Contract Expires'].dt.year  # Extract year
+
 # Filters on the sidebar
 st.sidebar.header('Filters')
 
@@ -40,12 +46,18 @@ age_filter = st.sidebar.slider('Select Age Range', int(data['Age'].min()), int(d
 # Usage filter (slider)
 usage_filter = st.sidebar.slider('Select Usage Range', 0, 90, (0, 90))
 
+# Contract Expires filter (slider)
+if 'Contract Year' in data.columns:
+    contract_min = int(data['Contract Year'].min())
+    contract_max = int(data['Contract Year'].max())
+    contract_filter = st.sidebar.slider('Select Contract Expiry Year', contract_min, contract_max, (contract_min, contract_max))
+
 # Tier filter (dropdown, multiple selection)
 tier_filter = st.sidebar.multiselect('Select Tier', data['Tier'].unique(), default=data['Tier'].unique())
 
 # Cascading League filter based on selected Tier
 filtered_leagues = data[data['Tier'].isin(tier_filter)]['League'].unique()
-league_options = ["All"] + list(filtered_leagues)  # Add "All" option
+league_options = ["All"] + list(filtered_leagues)
 
 league_filter = st.sidebar.multiselect('Select League', league_options, default="All")
 
@@ -58,7 +70,7 @@ else:
 # Model score filter (dropdown)
 model_score_filter = st.sidebar.selectbox('Select Model Score', options=[col for col in data.columns if 'Score (0-100)' in col])
 
-# Filter data
+# Apply filters
 filtered_data = data[
     (data['Age'] >= age_filter[0]) & (data['Age'] <= age_filter[1]) &
     (data['Usage'] >= usage_filter[0]) & (data['Usage'] <= usage_filter[1]) &
@@ -66,11 +78,16 @@ filtered_data = data[
     (data['League'].isin(selected_leagues))
 ]
 
+if 'Contract Year' in data.columns:
+    filtered_data = filtered_data[
+        (filtered_data['Contract Year'] >= contract_filter[0]) & (filtered_data['Contract Year'] <= contract_filter[1])
+    ]
+
 if position_filter:
     filtered_data = filtered_data[filtered_data['Position'].isin(position_filter)]
 
-# Sort the filtered data based on the selected model score
+# Sort by model score
 filtered_data_sorted = filtered_data.sort_values(by=model_score_filter, ascending=False)
 
-# Display the filtered table with specific columns
-st.dataframe(filtered_data_sorted[['Player', 'Team', 'Position', 'Age', 'Usage', model_score_filter]])
+# Display results
+st.dataframe(filtered_data_sorted[['Player', 'Team', 'Position', 'Age', 'Usage', 'Contract Expires', model_score_filter]])
